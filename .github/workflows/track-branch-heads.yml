@@ -18,6 +18,8 @@ jobs:
         with:
           persist-credentials: false
       - name: Configure git
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email \
@@ -25,11 +27,14 @@ jobs:
       - name: Run branch head tracker
         run: bash track-branch-heads.sh
       - name: Commit and push changes
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git add -A history/
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
             git commit -m "Update branch head history"
-            git push
+            remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+            git push "${remote}"
           fi
